@@ -10,8 +10,7 @@
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 
-#define CHANNELS 1
-#define SAMPLE_RATE 44100
+#include "dpcm.h"
 
 typedef struct {
     int32_t *samples;
@@ -29,7 +28,7 @@ void playback_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 {
     UNUSED(pInput);
     DPCM32_Player *player = pDevice->pUserData;
-    assert(pDevice->playback.channels == CHANNELS);
+    assert(pDevice->playback.channels == DPCM_CHANNELS);
     ma_int32 *output = pOutput;
     for (ma_uint32 i = 0; i < frameCount; ++i) {
         output[i] = dpcm32_next_sample(player);
@@ -38,7 +37,7 @@ void playback_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma
 
 void usage(const char *program_name)
 {
-    fprintf(stderr, "Usage: %s <input.dpcm32>\n", program_name);
+    fprintf(stderr, "Usage: %s <input.dpcm>\n", program_name);
 }
 
 int main(int argc, char **argv)
@@ -55,17 +54,37 @@ int main(int argc, char **argv)
     String_Builder sb = {0};
     if (!read_entire_file(input_file_path, &sb)) return 1;
 
-    assert(sb.count%sizeof(int32_t) == 0);
+    DPCM_File *meta = (void*)sb.items;
+    if (sb.count < sizeof(DPCM_File)) {
+        fprintf(stderr, "ERROR: %s: File is too small.\n", input_file_path);
+        return 1;
+    }
+    if (meta->magic != DPCM_MAGIC) {
+        fprintf(stderr, "ERROR: %s: Invalid magic 0x%08X.\n", input_file_path, meta->magic);
+        return 1;
+    }
+    if (meta->version != DPCM_VERSION) {
+        fprintf(stderr, "ERROR: %s: Unsupported version %u. Supported only %u.\n", input_file_path, meta->version, DPCM_VERSION);
+        return 1;
+    }
+    if (meta->format != FORMAT_DPCM32) {
+        fprintf(stderr, "ERROR: %s: Unsupported format.\n", input_file_path);
+        return 1;
+    }
+    if (meta->sample_count != (sb.count - sizeof(DPCM_File))/sizeof(int32_t)) {
+        fprintf(stderr, "ERROR: %s: Invalid amount of samples\n", input_file_path);
+        return 1;
+    }
 
     DPCM32_Player player = {
-        .samples = (void*)sb.items,
-        .count   = sb.count/sizeof(int32_t),
+        .samples = (void*)(sb.items + sizeof(DPCM_File)),
+        .count   = meta->sample_count,
     };
 
     ma_device_config config  = ma_device_config_init(ma_device_type_playback);
-    config.playback.format   = ma_format_s32; // Set to ma_format_unknown to use the device's native format.
-    config.playback.channels = CHANNELS;      // Set to 0 to use the device's native channel count.
-    config.sampleRate        = SAMPLE_RATE;   // Set to 0 to use the device's native sample rate.
+    config.playback.format   = ma_format_s32;     // Set to ma_format_unknown to use the device's native format.
+    config.playback.channels = DPCM_CHANNELS;     // Set to 0 to use the device's native channel count.
+    config.sampleRate        = meta->sample_rate; // Set to 0 to use the device's native sample rate.
     config.pUserData         = &player;
     config.dataCallback      = playback_callback;
 

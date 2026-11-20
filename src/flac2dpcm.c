@@ -8,7 +8,7 @@
 
 void usage(const char *program_name)
 {
-    fprintf(stderr, "Usage: %s <input.flac> <output.dpcm32>\n", program_name);
+    fprintf(stderr, "Usage: %s <input.flac> <output.dpcm>\n", program_name);
 }
 
 int main(int argc, char **argv)
@@ -55,7 +55,18 @@ int main(int argc, char **argv)
         previous = current;
     }
 
-    if (!write_entire_file(output_file_path, dpcm.items, sizeof(*dpcm.items)*dpcm.count)) {
+    String_Builder sb = {0};
+    DPCM_File meta = {
+        .magic        = DPCM_MAGIC,
+        .version      = DPCM_VERSION,
+        .sample_rate  = pFlac->sampleRate,
+        .format       = FORMAT_DPCM32,
+        .sample_count = dpcm.count,
+    };
+    sb_append_buf(&sb, &meta, sizeof(meta));
+    sb_append_buf(&sb, dpcm.items, sizeof(*dpcm.items)*dpcm.count);
+
+    if (!write_entire_file(output_file_path, sb.items, sb.count)) {
         return 1;
     }
     printf("Generated \"%s\"\n", output_file_path);
