@@ -8,6 +8,9 @@
 #define THIRDPARTY_FOLDER "thirdparty/"
 #define ASSETS_FOLDER     "assets/"
 
+#define TRACK_INPUT_PATH        ASSETS_FOLDER"just an obstacle in my way 1.flac"
+//#define TRACK_INPUT_PATH        ASSETS_FOLDER"checkpoint.ogg"
+
 void cc(Cmd *cmd)
 {
     cmd_append(cmd, "clang");
@@ -72,8 +75,7 @@ int main(int argc, char **argv)
         if (debug) cmd_append(&cmd, "gf2");
         cmd_append(&cmd, BUILD_FOLDER"flac2dpcm");
         if (dpcm1) cmd_append(&cmd, "-f", "dpcm1");
-        // cmd_append(&cmd, ASSETS_FOLDER"just an obstacle in my way 1.flac");
-        cmd_append(&cmd, ASSETS_FOLDER"checkpoint.ogg");
+        cmd_append(&cmd, TRACK_INPUT_PATH);
         cmd_append(&cmd, BUILD_FOLDER"output.dpcm");
         if (!cmd_run(&cmd)) return 1;
 
