@@ -2,7 +2,6 @@
 #include <inttypes.h>
 
 #include "miniaudio.h"
-#include "dr_flac.h"
 #include "nob.h"
 
 #include "dpcm.h"
@@ -137,9 +136,5 @@ int main(int argc, char **argv)
 }
 
 #include "dpcm.c"
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-#define DR_FLAC_IMPLEMENTATION
-#include "dr_flac.h"
 #define NOB_IMPLEMENTATION
 #include "nob.h"

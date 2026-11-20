@@ -1,6 +1,7 @@
 #include "nob.h"
 #undef temp_alloc
 #include "dr_flac.h"
+#define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
 #include "flag.h"
 
@@ -184,8 +185,6 @@ int main(int argc, char **argv)
 }
 
 #include "dpcm.c"
-#define DR_FLAC_IMPLEMENTATION
-#include "dr_flac.h"
 #define FLAG_IMPLEMENTATION
 #include "flag.h"
 #define NOB_IMPLEMENTATION
