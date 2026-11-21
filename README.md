@@ -4,9 +4,12 @@ Notes from the DPCM programming session.
 
 ## Quick Start
 
+> [!WARNING]
+> This is an audio programming project! Plug in your headphones, but do not put them on until your make sure that the sound levels produced by the programs are safe!
+
 ```console
 $ cc -o nob nob.c
-$ ./nob
+$ ./nob -run -dpcm1 -play
 ```
 
 ## References
