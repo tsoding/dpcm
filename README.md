@@ -12,6 +12,8 @@ $ cc -o nob nob.c
 $ ./nob -run -dpcm1 -play
 ```
 
+*The music sample is by [nu11](https://nu11.bandcamp.com/).*
+
 ## References
 
 - https://en.wikipedia.org/wiki/Differential_pulse-code_modulation
