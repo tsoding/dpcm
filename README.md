@@ -1,6 +1,6 @@
 # DPCM
 
-Notes from the DPCM programming session.
+Notes from the [1-bit Music in C](https://www.youtube.com/watch?v=GISS1coMV8c) session.
 
 ## Quick Start
 
